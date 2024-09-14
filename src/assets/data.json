@@ -1,0 +1,112 @@
+{
+  "data": [
+    {
+      "id": 1001,
+      "attributes": {
+        "companyCode": "CC001",
+        "vendorCode": "VC123",
+        "invoiceNumber": "INV-2024-001",
+        "documentNumber": "DOC-001",
+        "amountInDocumentCurrency": 1500.5,
+        "documentCurrency": "USD",
+        "historicMatchesCount": 2,
+        "status": "New",
+        "assignedUser": {
+          "firstName": "John",
+          "lastName": "Doe"
+        },
+        "updatedBy": {
+          "firstName": "Jane",
+          "lastName": "Smith"
+        },
+        "updatedOn": "2024-09-10T14:30:00Z"
+      }
+    },
+    {
+      "id": 1002,
+      "attributes": {
+        "companyCode": "CC002",
+        "vendorCode": "VC456",
+        "invoiceNumber": "INV-2024-002",
+        "documentNumber": "DOC-002",
+        "amountInDocumentCurrency": 2750.75,
+        "documentCurrency": "EUR",
+        "historicMatchesCount": 0,
+        "status": "Pending",
+        "assignedUser": {
+          "firstName": "Alice",
+          "lastName": "Johnson"
+        },
+        "updatedBy": {
+          "firstName": "Bob",
+          "lastName": "Williams"
+        },
+        "updatedOn": "2024-09-11T09:15:00Z"
+      }
+    },
+    {
+      "id": 1003,
+      "attributes": {
+        "companyCode": "CC003",
+        "vendorCode": "VC789",
+        "invoiceNumber": "INV-2024-003",
+        "documentNumber": "DOC-003",
+        "amountInDocumentCurrency": 500.0,
+        "documentCurrency": "GBP",
+        "historicMatchesCount": 1,
+        "status": "New",
+        "assignedUser": {
+          "firstName": "Charlie",
+          "lastName": "Brown"
+        },
+        "updatedBy": {
+          "firstName": "System"
+        },
+        "updatedOn": "2024-09-12T11:45:00Z"
+      }
+    },
+    {
+      "id": 1004,
+      "attributes": {
+        "companyCode": "CC001",
+        "vendorCode": "VC101",
+        "invoiceNumber": "INV-2024-004",
+        "documentNumber": "DOC-004",
+        "amountInDocumentCurrency": 3000.25,
+        "documentCurrency": "USD",
+        "historicMatchesCount": 3,
+        "status": "Pending",
+        "assignedUser": {
+          "firstName": "David",
+          "lastName": "Miller"
+        },
+        "updatedBy": {
+          "firstName": "Emily",
+          "lastName": "Davis"
+        },
+        "updatedOn": "2024-09-13T16:20:00Z"
+      }
+    },
+    {
+      "id": 1005,
+      "attributes": {
+        "companyCode": "CC004",
+        "vendorCode": "VC202",
+        "invoiceNumber": "INV-2024-005",
+        "documentNumber": "DOC-005",
+        "amountInDocumentCurrency": 1200.0,
+        "documentCurrency": "JPY",
+        "historicMatchesCount": 0,
+        "status": "New",
+        "assignedUser": {
+          "firstName": "Frank",
+          "lastName": "Wilson"
+        },
+        "updatedBy": {
+          "firstName": "System"
+        },
+        "updatedOn": "2024-09-14T08:50:00Z"
+      }
+    }
+  ]
+}
