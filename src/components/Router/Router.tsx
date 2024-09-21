@@ -1,10 +1,10 @@
 import { createBrowserRouter, RouteObject } from "react-router-dom";
-import DataTable from "../Datatable/DataTable";
+import DataTableContainer from "../Datatable/DataTableContainer";
 
 export const routes: RouteObject[] = [
   {
     path: "/",
-    element: <DataTable />,
+    element: <DataTableContainer />,
     children: [],
   },
 ];

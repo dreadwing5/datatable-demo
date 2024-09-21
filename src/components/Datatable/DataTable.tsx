@@ -1,153 +1,122 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState, useRef } from "react";
 import {
   MaterialReactTable,
   useMaterialReactTable,
   type MRT_ColumnDef,
+  type MRT_PaginationState,
+  type MRT_SortingState,
+  type MRT_ColumnFiltersState,
+  type MRT_VisibilityState,
+  type MRT_DensityState,
 } from "material-react-table";
+import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
+import { Box, Button } from "@mui/material";
+import Invoice from "./Invoice"; // Ensure this import path is correct
+import { alpha } from "@mui/material/styles";
 
-// Define the Invoice type based on our mock data structure
-type Invoice = {
-  id: number;
-  attributes: {
-    companyCode: string;
-    vendorCode: string;
-    invoiceNumber: string;
-    documentNumber: string;
-    amountInDocumentCurrency: number;
-    documentCurrency: string;
-    historicMatchesCount: number;
-    status: string;
-    assignedUser: {
-      firstName: string;
-      lastName: string;
-    };
-    updatedBy: {
-      firstName: string;
-      lastName?: string;
-    };
-    updatedOn: string;
-  };
-};
+const STORAGE_KEY_PREFIX = "dataTable_";
 
-// Full mock data set
-const data: Invoice[] = [
-  {
-    id: 1001,
-    attributes: {
-      companyCode: "CC001",
-      vendorCode: "VC123",
-      invoiceNumber: "INV-2024-001",
-      documentNumber: "DOC-001",
-      amountInDocumentCurrency: 1500.5,
-      documentCurrency: "USD",
-      historicMatchesCount: 2,
-      status: "New",
-      assignedUser: {
-        firstName: "John",
-        lastName: "Doe",
-      },
-      updatedBy: {
-        firstName: "Jane",
-        lastName: "Smith",
-      },
-      updatedOn: "2024-09-10T14:30:00Z",
-    },
-  },
-  {
-    id: 1002,
-    attributes: {
-      companyCode: "CC002",
-      vendorCode: "VC456",
-      invoiceNumber: "INV-2024-002",
-      documentNumber: "DOC-002",
-      amountInDocumentCurrency: 2750.75,
-      documentCurrency: "EUR",
-      historicMatchesCount: 0,
-      status: "Pending",
-      assignedUser: {
-        firstName: "Alice",
-        lastName: "Johnson",
-      },
-      updatedBy: {
-        firstName: "Bob",
-        lastName: "Williams",
-      },
-      updatedOn: "2024-09-11T09:15:00Z",
-    },
-  },
-  {
-    id: 1003,
-    attributes: {
-      companyCode: "CC003",
-      vendorCode: "VC789",
-      invoiceNumber: "INV-2024-003",
-      documentNumber: "DOC-003",
-      amountInDocumentCurrency: 500.0,
-      documentCurrency: "GBP",
-      historicMatchesCount: 1,
-      status: "New",
-      assignedUser: {
-        firstName: "Charlie",
-        lastName: "Brown",
-      },
-      updatedBy: {
-        firstName: "System",
-      },
-      updatedOn: "2024-09-12T11:45:00Z",
-    },
-  },
-  {
-    id: 1004,
-    attributes: {
-      companyCode: "CC001",
-      vendorCode: "VC101",
-      invoiceNumber: "INV-2024-004",
-      documentNumber: "DOC-004",
-      amountInDocumentCurrency: 3000.25,
-      documentCurrency: "USD",
-      historicMatchesCount: 3,
-      status: "Pending",
-      assignedUser: {
-        firstName: "David",
-        lastName: "Miller",
-      },
-      updatedBy: {
-        firstName: "Emily",
-        lastName: "Davis",
-      },
-      updatedOn: "2024-09-13T16:20:00Z",
-    },
-  },
-  {
-    id: 1005,
-    attributes: {
-      companyCode: "CC004",
-      vendorCode: "VC202",
-      invoiceNumber: "INV-2024-005",
-      documentNumber: "DOC-005",
-      amountInDocumentCurrency: 1200.0,
-      documentCurrency: "JPY",
-      historicMatchesCount: 0,
-      status: "New",
-      assignedUser: {
-        firstName: "Frank",
-        lastName: "Wilson",
-      },
-      updatedBy: {
-        firstName: "System",
-      },
-      updatedOn: "2024-09-14T08:50:00Z",
-    },
-  },
-];
+const DataTable: React.FC<{ data: Invoice[] }> = ({ data }) => {
+  const theme = useTheme();
+  const navigate = useNavigate();
+  const isFirstRender = useRef(true);
 
-const DataTable: React.FC = () => {
+  const [columnFilters, setColumnFilters] = useState<MRT_ColumnFiltersState>(
+    []
+  );
+  const [showColumnFilters, setShowColumnFilters] = useState(false);
+
+  const [globalFilter, setGlobalFilter] = useState<string | undefined>(
+    undefined
+  );
+
+  //Show gLOBAL
+  const [showGlobalFilter, setShowGlobalFilter] = useState(false);
+
+  //Default Sorting
+
+  const [sorting, setSorting] = useState<MRT_SortingState>([
+    { id: "attributes.updatedOn", desc: true },
+  ]);
+
+  const [pagination, setPagination] = useState<MRT_PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+  const [columnVisibility, setColumnVisibility] = useState<MRT_VisibilityState>(
+    {}
+  );
+  const [density, setDensity] = useState<MRT_DensityState>("comfortable");
+
+  const [columnPinning, setColumnPinning] = useState({
+    left: ["mrt-row-expand", "mrt-row-select"],
+    right: ["mrt-row-actions"],
+  });
+
+  //   useEffect(() => {
+  //     const loadState = (
+  //       key: string,
+  //       setter: React.Dispatch<React.SetStateAction<any>>
+  //     ) => {
+  //       const value = sessionStorage.getItem(STORAGE_KEY_PREFIX + key);
+  //       if (value) setter(JSON.parse(value));
+  //     };
+
+  //     loadState("columnFilters", setColumnFilters);
+  //     loadState("globalFilter", setGlobalFilter);
+  //     loadState("sorting", setSorting);
+  //     loadState("pagination", setPagination);
+  //     loadState("density", setDensity);
+
+  //     isFirstRender.current = false;
+  //   }, []);
+
+  // Save states to sessionStorage
+  //   useEffect(() => {
+  //     if (isFirstRender.current) return;
+  //     const saveState = (key: string, value: any) => {
+  //       sessionStorage.setItem(STORAGE_KEY_PREFIX + key, JSON.stringify(value));
+  //     };
+
+  //     saveState("columnFilters", columnFilters);
+  //     saveState("globalFilter", globalFilter);
+  //     saveState("sorting", sorting);
+  //     saveState("pagination", pagination);
+  //     saveState("density", density);
+  //   }, [columnFilters, globalFilter, sorting, pagination, density]);
+
+  //   const resetState = () => {
+  //     const keys = [
+  //       "columnFilters",
+  //       "globalFilter",
+  //       "sorting",
+  //       "pagination",
+  //       "density",
+  //     ];
+  //     keys.forEach((key) => sessionStorage.removeItem(STORAGE_KEY_PREFIX + key));
+  //     window.location.reload();
+  //   };
+
   const columns = useMemo<MRT_ColumnDef<Invoice>[]>(
     () => [
       {
         accessorKey: "id",
         header: "Record Number",
         size: 150,
+        Cell: ({ row }) => (
+          <Box
+            sx={{
+              cursor: "pointer",
+              color: theme.palette.primary.main,
+              "&:hover": {
+                textDecoration: "underline",
+              },
+            }}
+          >
+            {row.original.id}
+          </Box>
+        ),
       },
       {
         accessorKey: "attributes.companyCode",
@@ -173,10 +142,26 @@ const DataTable: React.FC = () => {
         accessorKey: "attributes.amountInDocumentCurrency",
         header: "Amount",
         size: 150,
-        Cell: ({ row }) =>
-          `${
-            row.original.attributes.documentCurrency
-          } ${row.original.attributes.amountInDocumentCurrency.toFixed(2)}`,
+        Cell: ({ row }) => (
+          <Box
+            sx={{
+              backgroundColor:
+                row.original.attributes.amountInDocumentCurrency < 1000
+                  ? theme.palette.success.main
+                  : row.original.attributes.amountInDocumentCurrency < 5000
+                  ? theme.palette.warning.main
+                  : theme.palette.error.main,
+              borderRadius: "4px",
+              color: "#fff",
+              p: "0.25rem",
+              display: "inline-block",
+            }}
+          >
+            {`${
+              row.original.attributes.documentCurrency
+            } ${row.original.attributes.amountInDocumentCurrency.toFixed(2)}`}
+          </Box>
+        ),
       },
       {
         accessorKey: "attributes.historicMatchesCount",
@@ -187,46 +172,144 @@ const DataTable: React.FC = () => {
         accessorKey: "attributes.status",
         header: "Status",
         size: 150,
+        filterVariant: "select",
+        filterSelectOptions: ["New", "Pending", "Completed"],
       },
       {
-        accessorKey: "attributes.assignedUser",
+        accessorFn: (row) =>
+          `${row.attributes.assignedUser.firstName} ${row.attributes.assignedUser.lastName}`,
+        id: "assignedTo",
         header: "Assigned To",
         size: 200,
-        Cell: ({ row }) =>
-          `${row.original.attributes.assignedUser.firstName} ${row.original.attributes.assignedUser.lastName}`,
       },
       {
-        accessorKey: "attributes.updatedBy",
+        accessorFn: (row) => {
+          const { firstName, lastName } = row.attributes.updatedBy;
+          return lastName ? `${firstName} ${lastName}` : firstName;
+        },
+        id: "updatedBy",
         header: "Updated By",
         size: 200,
-        Cell: ({ row }) => {
-          const updatedBy = row.original.attributes.updatedBy;
-          return updatedBy.lastName
-            ? `${updatedBy.firstName} ${updatedBy.lastName}`
-            : updatedBy.firstName;
-        },
       },
       {
         accessorKey: "attributes.updatedOn",
         header: "Updated On",
         size: 200,
-        Cell: ({ row }) =>
-          new Date(row.original.attributes.updatedOn).toLocaleString(),
+        Cell: ({ cell }) => new Date(cell.getValue<string>()).toLocaleString(),
+        sortingFn: "datetime",
       },
     ],
     []
   );
 
+  /* We need to show the column fiilter when we actually apply the filtering
+    --  When the user visits the Website they will get to know what filters has been applied
+
+    -- The Headers should have less spacing also it should show the full column width or it should collaps to a new line
+    
+    */
+
   const table = useMaterialReactTable({
     columns,
     data,
-    enableColumnFilters: true,
-    enableSorting: true,
-    enablePagination: true,
-    enableFullScreenToggle: false,
-    initialState: {
-      pagination: { pageSize: 5, pageIndex: 0 },
-      sorting: [{ id: "id", desc: false }],
+    enableColumnOrdering: false,
+    enableColumnPinning: true,
+    enableColumnResizing: true,
+    enableFacetedValues: true,
+
+    initialState: { showColumnFilters: false, showGlobalFilter: true },
+    state: {
+      columnFilters,
+      globalFilter,
+      sorting,
+      pagination,
+      columnVisibility,
+      density,
+      columnPinning,
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onGlobalFilterChange: setGlobalFilter,
+    onSortingChange: setSorting,
+    onPaginationChange: setPagination,
+    onColumnVisibilityChange: setColumnVisibility,
+    onDensityChange: setDensity,
+    // renderTopToolbarCustomActions: () => (
+    //   <Button onClick={resetState} variant="contained" color="primary">
+    //     Reset Table
+    //   </Button>
+    // ),
+
+    muiTableHeadCellProps: {
+      sx: {
+        backgroundColor: "green",
+        fontWeight: "light",
+        fontSize: "0.8rem",
+        color: "white",
+        whiteSpace: "normal",
+        wordBreak: "break-word",
+        height: "auto",
+
+        lineHeight: 1.2,
+        "& .Mui-TableHeadCell-Content": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+        "& .Mui-TableHeadCell-Content-Labels": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+        "& .Mui-TableHeadCell-Content-Wrapper": {
+          whiteSpace: "normal",
+          wordBreak: "break-word",
+        },
+      },
+    },
+    muiTablePaperProps: {
+      elevation: 0,
+      sx: {
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: "hidden",
+      },
+    },
+    muiTableContainerProps: {
+      sx: {
+        flex: "1 1 auto",
+        overflow: "auto",
+        "&:fullscreen": {
+          overflow: "hidden",
+        },
+        "&:fullscreen .MuiTable-root": {
+          overflow: "auto",
+          maxHeight: "100vh",
+        },
+      },
+    },
+    muiTableBodyProps: {
+      sx: {
+        "& tr:last-child td": { borderBottom: "none" },
+      },
+    },
+    muiTableProps: {
+      sx: {
+        tableLayout: "fixed",
+        "& .MuiTableHead-root": {
+          "& .MuiTableRow-root": {
+            height: "auto",
+          },
+        },
+      },
+    },
+    layoutMode: "grid",
+    positionToolbarAlertBanner: "bottom",
+    displayColumnDefOptions: {
+      "mrt-row-expand": {
+        size: 50,
+      },
+      "mrt-row-select": {
+        size: 50,
+      },
     },
   });
 
